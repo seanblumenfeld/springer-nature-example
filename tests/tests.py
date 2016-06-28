@@ -4,7 +4,7 @@ import unittest
 
 class TestDrawer(unittest.TestCase):
 
-    # Draw Lines
+    # Lines
     def test_fill_horizontal_line_canvas_4x2(self):
         canvas = Canvas(width=4, height=2)
         line = Line(x1=1, y1=1, x2=3, y2=1)
@@ -24,12 +24,58 @@ class TestDrawer(unittest.TestCase):
         # Canvas should still be empty
         self.assertEquals(str(canvas), ' ----\n|    |\n|    |\n ----')
 
-    def test_fill_line_on_canvas_20x4(self):
-        canvas = Canvas(width=20, height=4)
-        canvas.draw_line(x1=1, y1=2, x2=6, y2=2)
-        self.assertEquals(str(canvas), ' --\n|xx|\n|xx|\n --')
+    # Rectangles
+    def test_rectangle_3x2_canvas_4x2(self):
+        canvas = Canvas(width=4, height=2)
+        rectangle = Rectangle(x1=1, y1=1, x2=3, y2=2)
+        Drawer.draw_rectangle(canvas, rectangle)
+        self.assertEquals(str(canvas), ' ----\n|xxx |\n|xxx |\n ----')
 
-    # Draw Rectangle
+    def test_rectangle_2x2_raises_canvas_4x2(self):
+        """Do we allow squares to be drawn? Easiest implimentation -> Yes we do."""
+        canvas = Canvas(width=4, height=2)
+        rectangle = Rectangle(x1=1, y1=1, x2=2, y2=2)
+        Drawer.draw_rectangle(canvas, rectangle)
+        self.assertEquals(str(canvas), ' ----\n|xx  |\n|xx  |\n ----')
+
+    # Bucket Fills
+    def test_fill_canvas_4x2(self):
+        canvas = Canvas(width=4, height=2)
+        coords = set([(1, 1)])
+        colour = 'o'
+        Drawer.draw_bucket_fill(canvas, coords, colour)
+        self.assertEquals(str(canvas), ' ----\n|oooo|\n|oooo|\n ----')
+
+    def test_fill_canvas_with_rectangle_10x10(self):
+        """The big one!"""
+        canvas = Canvas(width=10, height=10)
+        rectangle = Rectangle(x1=1, y1=1, x2=5, y2=5)
+        Drawer.draw_rectangle(canvas, rectangle)
+
+        #Fill outside of rectangle
+        coords = set([(8, 8)])
+        colour = 'o'
+        import pdb; pdb.set_trace()
+        Drawer.draw_bucket_fill(canvas, coords, colour)
+        self.assertEquals(str(canvas), ' ----\n|oooo|\n|oooo|\n ----')
+
+    def test_find_middlle_surrounding_coords_4x4(self):
+        canvas = Canvas(width=4, height=4)
+        s = Drawer.find_surrounding_coords(canvas, 1, 1)
+        expected = set([(0, 0), (1, 0), (2, 0), (0, 1), (2, 1), (0, 2), (1, 2), (2, 2)])
+        self.assertEquals(s, expected)
+
+    def test_find_edge_surrounding_coords_4x4(self):
+        canvas = Canvas(width=4, height=2)
+        s = Drawer.find_surrounding_coords(canvas, 0, 0)
+        expected = set([(0, 1), (1, 0), (1, 1)])
+        self.assertEquals(s, expected)
+
+    def test_fill_colour(self):
+        canvas = Canvas(width=4, height=2)
+        coords = set([(0, 0), (1, 0), (2, 0)])
+        s = Drawer.fill_colour(canvas, coords, 'o')
+        self.assertEquals(str(canvas), ' ----\n|ooo |\n|    |\n ----')
 
 
 class TestCanvas(unittest.TestCase):
@@ -81,6 +127,14 @@ class TestCanvas(unittest.TestCase):
         canvas[1, 1].state = True
         self.assertEquals(str(canvas), ' --\n|xx|\n|xx|\n --')
 
+    def test_xy_exists_returns_true(self):
+        canvas = Canvas(width=2, height=2)
+        self.assertTrue(canvas.exists_on_canvas(1, 1))
+
+    def test_xy_exists_returns_true(self):
+        canvas = Canvas(width=2, height=2)
+        self.assertFalse(canvas.exists_on_canvas(1, 3))
+
 
 class TestCell(unittest.TestCase):
 
@@ -103,6 +157,27 @@ class TestCell(unittest.TestCase):
         cell.state = False
         self.assertFalse(cell.state)
         self.assertEquals(str(cell), ' ')
+
+    def test_cell_starts_in_x_colour(self):
+        cell = Cell()
+        self.assertEquals(cell.colour, 'x')
+
+    def test_set_cell_colour(self):
+        cell = Cell()
+        cell.colour = 'o'
+        self.assertEquals(cell.colour, 'o')
+
+    def test_set_cell_colour_raises(self):
+        cell = Cell()
+        def local_colour():
+            cell.colour = 'hello'
+        self.assertRaises(AttributeError, local_colour)
+
+    def test_set_cell_colour_already_set_warning(self):
+        cell = Cell()
+        def local_colour():
+            cell.colour = 'x'
+        self.assertRaises(Warning, local_colour)
 
 
 class TestLine(unittest.TestCase):
