@@ -55,7 +55,6 @@ class TestDrawer(unittest.TestCase):
         #Fill outside of rectangle
         coords = set([(8, 8)])
         colour = 'o'
-        import pdb; pdb.set_trace()
         Drawer.draw_bucket_fill(canvas, coords, colour)
         self.assertEquals(str(canvas), ' ----\n|oooo|\n|oooo|\n ----')
 

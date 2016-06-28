@@ -197,11 +197,12 @@ class Drawer:
 
         for _x,_y in coords:
             new_coords = Drawer.find_surrounding_coords(canvas, _x, _y)
-            result_coords = new_coords - coords
-        
-        if result_coords:
-            Drawer.fill_colour(canvas, result_coords, colour)
-            Drawer.draw_bucket_fill(canvas, result_coords, colour)
+            result_coords = new_coords.union(coords)
+
+            if result_coords:
+                Drawer.fill_colour(canvas, result_coords, colour)
+
+        Drawer.draw_bucket_fill(canvas, result_coords, colour)
 
     @staticmethod
     def find_surrounding_coords(canvas, x, y):
