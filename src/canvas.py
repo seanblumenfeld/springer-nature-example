@@ -77,9 +77,23 @@ class Line(Shape):
 
 
 class Cell:
-    
+
     def __init__(self):
         self._state = False
+        self._colour = 'x'
+
+    @property
+    def colour(self):
+        """Cell colour; default is 'x'"""
+        return self._colour
+
+    @colour.setter
+    def colour(self, new_colour):
+        if len(new_colour) != 1:
+            raise AttributeError('Colour must be a single character')
+        if self._colour == new_colour:
+            raise Warning('Colour already set to {}'.format(new_colour))
+        self._colour = new_colour
 
     @property
     def state(self):
@@ -93,7 +107,7 @@ class Cell:
 
     def __str__(self):
         if self.state:
-            return 'x'
+            return self.colour
         return ' '
 
 
@@ -141,6 +155,12 @@ class Canvas:
         
         return '\n'.join(rows)
 
+    def exists_on_canvas(self, x, y):
+        """return whether a given coordinate exists on the canvas"""
+        x_exists = x in range(0, self.width)
+        y_exists = y in range(0, self.height)
+        return all([x_exists, y_exists])
+
 
 class Drawer:
     
@@ -156,3 +176,50 @@ class Drawer:
         else:
             for p in range(line.start_coordinate[1], line.end_coordinate[1]):
                 canvas[line.start_coordinate[0], p].state = True
+
+    @staticmethod
+    def draw_rectangle(canvas, rectangle):
+        """We can draw a rectangle by just drawing all 4 sides/lines"""
+        Drawer.draw_line(canvas, rectangle.north_line)
+        Drawer.draw_line(canvas, rectangle.south_line)
+        Drawer.draw_line(canvas, rectangle.east_line)
+        Drawer.draw_line(canvas, rectangle.west_line)
+        
+    @staticmethod
+    def draw_bucket_fill(canvas, coords, colour):
+        """Bucket fill an area of cells
+
+        Args:
+            coords - Set of coordinates; set()
+            colour - colour to fill; Char
+        """
+        result_coords = set()
+
+        for _x,_y in coords:
+            new_coords = Drawer.find_surrounding_coords(canvas, _x, _y)
+            result_coords = new_coords - coords
+        
+        if result_coords:
+            Drawer.fill_colour(canvas, result_coords, colour)
+            Drawer.draw_bucket_fill(canvas, result_coords, colour)
+
+    @staticmethod
+    def find_surrounding_coords(canvas, x, y):
+        """Get the coordinates of cells surrounding (x, y) on canvas which have
+        the same colour as the (x, y) coordinate
+        """
+        coords = set()
+        possible_coords = [(x+i,y+j) for i in (-1,0,1) for j in (-1,0,1) if i != 0 or j != 0]
+        
+        for _x,_y in possible_coords:
+            if canvas.exists_on_canvas(_x, _y) and canvas[x, y].colour == canvas[_x, _y].colour:
+                coords.add((_x, _y))
+        
+        return coords
+
+    @staticmethod
+    def fill_colour(canvas, coords, colour):
+        """fill a set of coordinates with colour on canvas"""
+        for x,y in coords:
+            canvas[x, y].colour = colour
+            canvas[x, y].state = True
