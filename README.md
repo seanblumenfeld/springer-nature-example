@@ -1,16 +1,16 @@
-h1. Canvas 
+# Canvas #
 
-h2. Setup
+## Setup ##
 * git clone git@github.com:seanblumenfeld/springer-nature-example.git
 * cd springer-nature-example
 * ./setup.sh
 * source pyenv/bin/activate
 * python run.py
 
-h2. Program Usage
+## Program Usage ##
 Whenever you want to use Canvas start by doing the following:
 * source pyenv/bin/activate
 * python run.py
 
-h2. Run Test Suite
+## Run Test Suite ##
 * ./tests/run_tests.sh
