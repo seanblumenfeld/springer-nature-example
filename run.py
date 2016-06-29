@@ -73,7 +73,7 @@ class CanvasPrompt(cmd.Cmd):
             print(e)
             print("Rectangle not drawn on canvas")
 
-    def do_b(self, xargs):
+    def do_B(self, xargs):
         """Bucket Fill command. 
         
         xargs: 'x y c'
@@ -84,7 +84,7 @@ class CanvasPrompt(cmd.Cmd):
         Fill the entire area connected to (x,y) with colour 'c'.
         """
         try:
-            xargs = self._split_args(xargs, expected=4, msg='Expected args: R x1 y1 x2 y2')
+            xargs = self._split_args(xargs, expected=4, msg='Expected args: B x y c')
             Drawer.draw_bucket_fill(self.canvas, *xargs)
             print('Bucket Fill drawn on canvas')
         except DrawError as e:

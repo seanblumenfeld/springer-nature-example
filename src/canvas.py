@@ -156,7 +156,12 @@ class Canvas:
         return '\n'.join(rows)
 
     def exists_on_canvas(self, x, y):
-        """return whether a given coordinate exists on the canvas"""
+        """Find if a given coordinate exists on the canvas
+
+        Returns:
+            True - it exists
+            False - it does not exist
+        """
         x_exists = x in range(0, self.width)
         y_exists = y in range(0, self.height)
         return all([x_exists, y_exists])
@@ -186,35 +191,38 @@ class Drawer:
         Drawer.draw_line(canvas, rectangle.west_line)
         
     @staticmethod
-    def draw_bucket_fill(canvas, coords, colour):
+    def draw_bucket_fill(canvas, x, y, colour):
         """Bucket fill an area of cells
 
         Args:
             coords - Set of coordinates; set()
             colour - colour to fill; Char
         """
-        result_coords = set()
+        if not canvas.exists_on_canvas(x, y) or str(canvas[x, y]) == colour:
+            return
 
-        for _x,_y in coords:
-            new_coords = Drawer.find_surrounding_coords(canvas, _x, _y)
-            result_coords = new_coords.union(coords)
+        all_coords = [(x, y)]
 
-            if result_coords:
-                Drawer.fill_colour(canvas, result_coords, colour)
-
-        Drawer.draw_bucket_fill(canvas, result_coords, colour)
+        while all_coords:
+            for x,y in all_coords:
+                new_coords = Drawer.find_surrounding_coords(canvas, x, y)
+                try:
+                    Drawer.fill_colour(canvas, new_coords, colour)
+                except Warning as w:
+                    pass
+                all_coords = new_coords
 
     @staticmethod
     def find_surrounding_coords(canvas, x, y):
         """Get the coordinates of cells surrounding (x, y) on canvas which have
         the same colour as the (x, y) coordinate
         """
-        coords = set()
+        coords = []
         possible_coords = [(x+i,y+j) for i in (-1,0,1) for j in (-1,0,1) if i != 0 or j != 0]
         
         for _x,_y in possible_coords:
-            if canvas.exists_on_canvas(_x, _y) and canvas[x, y].colour == canvas[_x, _y].colour:
-                coords.add((_x, _y))
+            if canvas.exists_on_canvas(_x, _y) and str(canvas[x, y]) == str(canvas[_x, _y]):
+                coords.append((_x, _y))
         
         return coords
 
